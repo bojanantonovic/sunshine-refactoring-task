@@ -5,6 +5,7 @@ import org.pancakelab.model.pancakes.*;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 public class PancakeService {
 	private List<Order> orders = new ArrayList<>();
@@ -18,34 +19,30 @@ public class PancakeService {
 		return order;
 	}
 
-	public void addDarkChocolatePancake(UUID orderId, int count) {
+	public void addPancakeRecipe(Supplier<PancakeRecipe> supplier, UUID orderId, int count) {
 		for (int i = 0; i < count; ++i) {
-			addPancake(new DarkChocolatePancake(), getFirstOrder(orderId));
+			addPancake(supplier.get(), getFirstOrder(orderId));
 		}
+	}
+
+	public void addDarkChocolatePancake(UUID orderId, int count) {
+		addPancakeRecipe(DarkChocolatePancake::new, orderId, count);
 	}
 
 	public void addDarkChocolateWhippedCreamPancake(UUID orderId, int count) {
-		for (int i = 0; i < count; ++i) {
-			addPancake(new DarkChocolateWhippedCreamPancake(), getFirstOrder(orderId));
-		}
+		addPancakeRecipe(DarkChocolateWhippedCreamPancake::new, orderId, count);
 	}
 
 	public void addDarkChocolateWhippedCreamHazelnutsPancake(UUID orderId, int count) {
-		for (int i = 0; i < count; ++i) {
-			addPancake(new DarkChocolateWhippedCreamHazelnutsPancake(), getFirstOrder(orderId));
-		}
+		addPancakeRecipe(DarkChocolateWhippedCreamHazelnutsPancake::new, orderId, count);
 	}
 
 	public void addMilkChocolatePancake(UUID orderId, int count) {
-		for (int i = 0; i < count; ++i) {
-			addPancake(new MilkChocolatePancake(), getFirstOrder(orderId));
-		}
+		addPancakeRecipe(MilkChocolatePancake::new, orderId, count);
 	}
 
 	public void addMilkChocolateHazelnutsPancake(UUID orderId, int count) {
-		for (int i = 0; i < count; ++i) {
-			addPancake(new MilkChocolateHazelnutsPancake(), getFirstOrder(orderId));
-		}
+		addPancakeRecipe(MilkChocolateHazelnutsPancake::new, orderId, count);
 	}
 
 	public List<String> viewOrder(UUID orderId) {
