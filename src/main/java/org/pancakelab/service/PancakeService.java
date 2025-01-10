@@ -19,12 +19,6 @@ public class PancakeService {
 		return order;
 	}
 
-	public void addPancakeRecipe(Supplier<PancakeRecipe> supplier, UUID orderId, int count) {
-		for (int i = 0; i < count; ++i) {
-			addPancake(supplier.get(), getFirstOrder(orderId));
-		}
-	}
-
 	public void addDarkChocolatePancake(UUID orderId, int count) {
 		addPancakeRecipe(DarkChocolatePancake::new, orderId, count);
 	}
@@ -46,7 +40,17 @@ public class PancakeService {
 	}
 
 	public List<String> viewOrder(UUID orderId) {
-		return pancakes.stream().filter(pancake -> pancake.getOrderId().equals(orderId)).map(PancakeRecipe::description).toList();
+		return pancakes.stream() //
+				.filter(pancake -> pancake.getOrderId().equals(orderId)) //
+				.map(PancakeRecipe::description) //
+				.toList();
+	}
+
+	public void addPancakeRecipe(Supplier<PancakeRecipe> supplier, UUID orderId, int count) {
+		final var order = getOrderById(orderId);
+		for (int i = 0; i < count; ++i) {
+			addPancake(supplier.get(), order);
+		}
 	}
 
 	private void addPancake(PancakeRecipe pancake, Order order) {
@@ -62,12 +66,12 @@ public class PancakeService {
 			return pancake.getOrderId().equals(orderId) && pancake.description().equals(description) && removedCount.getAndIncrement() < count;
 		});
 
-		Order order = getFirstOrder(orderId);
+		Order order = getOrderById(orderId);
 		OrderLog.logRemovePancakes(order, description, removedCount.get(), pancakes);
 	}
 
 	public void cancelOrder(UUID orderId) {
-		Order order = getFirstOrder(orderId);
+		Order order = getOrderById(orderId);
 		OrderLog.logCancelOrder(order, this.pancakes);
 
 		pancakes.removeIf(pancake -> pancake.getOrderId().equals(orderId));
@@ -100,7 +104,7 @@ public class PancakeService {
 			return null;
 		}
 
-		Order order = getFirstOrder(orderId);
+		Order order = getOrderById(orderId);
 		List<String> pancakesToDeliver = viewOrder(orderId);
 		OrderLog.logDeliverOrder(order, this.pancakes);
 
@@ -111,7 +115,7 @@ public class PancakeService {
 		return new Object[] {order, pancakesToDeliver};
 	}
 
-	private Order getFirstOrder(final UUID orderId) {
+	private Order getOrderById(final UUID orderId) {
 		return orders.stream() //
 				.filter(order -> order.getId().equals(orderId)) //
 				.findFirst() //
